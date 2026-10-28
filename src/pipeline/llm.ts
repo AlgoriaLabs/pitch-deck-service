@@ -60,7 +60,7 @@ async function chat(provider: LlmProviderConfig, messages: Message[], signal: Ab
       "Content-Type": "application/json",
       Authorization: `Bearer ${provider.apiKey}`,
       // OpenRouter asks for these; other providers ignore them.
-      "HTTP-Referer": "https://github.com/pitch-deck-agent",
+      "HTTP-Referer": "https://github.com/AlgoriaLabs/pitch-deck-service",
       "X-Title": "pitch-deck-agent",
     },
     body: JSON.stringify({

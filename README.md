@@ -7,7 +7,7 @@ Built on [Stellar Agent Services](https://github.com/AlgoriaLabs/stellar-agent-s
 discoverable through [Stellar Agent Search](https://github.com/berkingurcan/stellar-agent-search) once registered
 on Stellar 8004.
 
-👉 **Setting it up? Go to [SETUP.md](SETUP.md).**
+👉 **Deploying? [DEPLOY.md](DEPLOY.md)** (5 moves, one page). Full walkthrough incl. local testing: [SETUP.md](SETUP.md).
 
 ## How it works
 
