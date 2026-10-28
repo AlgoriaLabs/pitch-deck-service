@@ -1,0 +1,42 @@
+{
+  "name": "pitch-deck-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Paid AI agent service on Stellar: give it a GitHub repository, get back a PPTX pitch deck. Provider Standard v1, x402 USDC.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "vendor": "bash scripts/vendor-kit.sh",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test --disable-warning=ExperimentalWarning 'dist-test/test/**/*.test.js'",
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/server.js",
+    "deck": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/cli/deck.js",
+    "kit": "node vendor/stellar-agent-services/packages/provider-kit/dist/cli/index.js",
+    "verifier": "node vendor/stellar-agent-services/packages/verifier/dist/cli/index.js",
+    "stellar-pay": "node vendor/stellar-agent-services/packages/payment-client/dist/cli.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.5",
+    "@stellar-agent-services/protocol": "file:vendor/pack/stellar-agent-services-protocol-0.0.0.tgz",
+    "@stellar-agent-services/provider-kit": "file:vendor/pack/stellar-agent-services-provider-kit-0.0.0.tgz",
+    "ajv": "8.20.0",
+    "hono": "4.13.14",
+    "pptxgenjs": "4.0.1",
+    "tar": "7.5.22"
+  },
+  "overrides": {
+    "@stellar-agent-services/protocol": "$@stellar-agent-services/protocol",
+    "@stellar/stellar-sdk": "16.3.1",
+    "axios": "1.20.0"
+  },
+  "devDependencies": {
+    "@stellar/stellar-sdk": "16.3.1",
+    "@types/node": "22.20.5",
+    "@x402/core": "2.28.0",
+    "typescript": "6.0.3"
+  }
+}

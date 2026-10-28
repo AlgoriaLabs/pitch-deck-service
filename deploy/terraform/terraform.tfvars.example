@@ -1,0 +1,31 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Lines marked ★ are required.
+
+# ─── Oracle Cloud ───
+region           = "eu-frankfurt-1"                # ★ your home region
+compartment_ocid = "ocid1.tenancy.oc1..aaaa..."    # ★ tenancy OCID works
+# availability_domain_index = 1                   # try 1 or 2 on "Out of host capacity"
+# ssh_allowed_cidr = "203.0.113.7/32"              # your IP, recommended
+
+# ─── Address ───
+acme_email = "you@example.com"                     # ★
+# domain   = "deck.example.com"                    # recommended for mainnet; empty = <ip>.sslip.io
+
+# ─── THE SWITCH ───
+stellar_network = "testnet"                        # ★ testnet | mainnet
+price_usdc      = "0.10"
+
+# ─── Testnet ───
+pay_to_testnet   = "G..."                          # ★ stellar keys address payto-testnet
+agent_id_testnet = ""                              # after registering (SETUP.md step 6)
+
+# ─── Mainnet (fill before switching) ───
+pay_to_mainnet              = ""
+agent_id_mainnet            = ""
+soroban_rpc_url_mainnet     = ""                   # e.g. a provider from the Stellar RPC providers page
+facilitator_api_key_mainnet = ""                   # channels.openzeppelin.com/gen
+
+# ─── LLMs (at least one) + GitHub ───
+gemini_api_key     = ""                            # ★ aistudio.google.com → Get API key
+groq_api_key       = ""                            # console.groq.com (fallback)
+openrouter_api_key = ""                            # openrouter.ai (fallback)
+github_token       = ""                            # github.com/settings/personal-access-tokens, no scopes

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+vendor/
+data/
+*.sqlite
+*.sqlite-*
+.env
+*.pptx
+deploy/terraform/.terraform/
+deploy/terraform/*.tfstate*
+deploy/terraform/terraform.tfvars
+deploy/terraform/.build/
+.DS_Store
+dist-test/

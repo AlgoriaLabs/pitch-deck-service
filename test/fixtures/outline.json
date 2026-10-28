@@ -1,0 +1,94 @@
+{
+  "projectName": "Stellar Agent Services",
+  "tagline": "Turn any AI function or API into a paid, verifiable agent service on Stellar in minutes",
+  "problem": {
+    "headline": "AI agents can find each other but can't safely pay each other",
+    "bullets": [
+      "Agent directories list self-declared services with no proof the endpoint works or charges fairly",
+      "Pay-per-call APIs lose money or double-charge when a response drops mid-flight",
+      "Every provider hand-rolls payments, retries and queues, so integrations break in subtle ways",
+      "Buyers have no standard way to compare price, schema and trust before they spend"
+    ],
+    "notes": "Agent marketplaces are growing fast, but trust and payment are the bottleneck."
+  },
+  "solution": {
+    "headline": "One open standard, a kit, and a verifier for paid agent services",
+    "bullets": [
+      "Provider Standard v1 defines manifest, jobs, receipts and error codes as testable rules",
+      "Provider Kit wraps a function or existing HTTP API into an x402 USDC paid service",
+      "Job Recovery decides uncertain payments from the chain, so nobody pays twice",
+      "A verifier issues on-chain receipts and badges through the Stellar 8004 registry"
+    ],
+    "notes": ""
+  },
+  "howItWorks": {
+    "headline": "From function to paid service in three steps",
+    "steps": [
+      { "title": "Define the service", "detail": "Price, JSON schemas and a handler in a few lines of TypeScript, or a gateway config" },
+      { "title": "Publish and register", "detail": "Serve the manifest over HTTPS and register the provider on Stellar 8004" },
+      { "title": "Get paid per job", "detail": "Agents pay in USDC via x402; results survive restarts and lost responses" },
+      { "title": "Earn trust", "detail": "The verifier checks C1–C7 and records badges in the Validation Registry" }
+    ],
+    "notes": ""
+  },
+  "architecture": {
+    "headline": "Small, separable packages around a frozen spec",
+    "components": [
+      { "name": "Protocol", "role": "The standard as code: schemas, vectors, no runtime deps" },
+      { "name": "Provider Kit", "role": "Manifest, x402 challenge, durable SQLite job queue" },
+      { "name": "Payment Client", "role": "Approval, spending policy, journal and recovery" },
+      { "name": "Verifier", "role": "Checks providers, proves payments, publishes receipts" },
+      { "name": "Dev MCP", "role": "Spec rules and manifest checks for coding agents" }
+    ],
+    "notes": ""
+  },
+  "features": {
+    "headline": "Built for money-safe automation",
+    "items": [
+      { "title": "Never charge twice", "detail": "Uncertain payments become payment_uncertain and are settled from on-chain data" },
+      { "title": "Any language", "detail": "Gateway mode puts an existing Python, Go or Rust API behind x402 with no code" },
+      { "title": "Fair queuing", "detail": "Capacity is checked before the 402, so buyers never pay for work that can't run" },
+      { "title": "No keys on servers", "detail": "Providers hold only a public payTo address; the facilitator settles" },
+      { "title": "Agent-ready docs", "detail": "AGENTS.md, llms.txt and a Claude Code plugin guide coding agents" },
+      { "title": "Verifiable trust", "detail": "Receipts and badges live on chain, not in a self-declared listing" }
+    ],
+    "notes": ""
+  },
+  "traction": {
+    "headline": "A paid call works end to end on testnet",
+    "bullets": [
+      "Library and gateway providers settle real testnet USDC through the x402 facilitator",
+      "Job Recovery and all seven verifier checks are complete in code with test vectors",
+      "Built as phase 2 of Stellar Agent Search, already live on Stellar mainnet"
+    ],
+    "notes": ""
+  },
+  "useCases": {
+    "headline": "Who it's for",
+    "items": [
+      { "audience": "AI API builders", "value": "Charge per call in USDC without building billing, retries or queues" },
+      { "audience": "Agent developers", "value": "Discover, compare and pay services with spending limits and recovery" },
+      { "audience": "Marketplaces", "value": "List providers whose behavior and payments are verified on chain" }
+    ],
+    "notes": ""
+  },
+  "roadmap": {
+    "headline": "Roadmap",
+    "items": [
+      { "phase": "Now", "goal": "Pilot providers on testnet and finish the payment client" },
+      { "phase": "Next", "goal": "Publish packages to npm and launch on Stellar mainnet" },
+      { "phase": "Then", "goal": "More facilitators, assets and a hosted verifier service" },
+      { "phase": "Later", "goal": "Cross-registry discovery with EVM ERC-8004 agents" }
+    ],
+    "notes": ""
+  },
+  "ask": {
+    "headline": "Build the first paid agent economy on Stellar with us",
+    "bullets": [
+      "Pilot providers: bring an AI API and ship it as a paid service",
+      "Agent and wallet teams: integrate the payment client",
+      "Ecosystem partners: fund audits and mainnet launch support"
+    ],
+    "notes": ""
+  }
+}

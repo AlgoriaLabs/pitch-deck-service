@@ -1,0 +1,14 @@
+# Written by Terraform (deploy.tf).
+{
+	email ${acme_email}
+}
+
+${domain} {
+	encode gzip
+	# Caddy sets X-Forwarded-For to the real client, which the app's rate limit uses.
+	reverse_proxy 127.0.0.1:8787
+	log {
+		output stdout
+		format console
+	}
+}
