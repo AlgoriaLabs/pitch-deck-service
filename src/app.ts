@@ -42,7 +42,9 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
     provider: {
       // name + description are what stellar-agent-search matches, through the 8004 registration file.
       name: "Pitch Deck Agent",
-      description: "AI agent that turns a GitHub repository into an investor pitch deck (PowerPoint PPTX slides). Paid per deck in USDC over x402.",
+      // Search reads only this name and description, never the services: every word a buyer types goes here.
+      // `npm run check` lists the words it would miss.
+      description: "AI agent that turns a GitHub repository into a startup pitch deck: an investor presentation as PowerPoint PPTX slides. Paid per deck in USDC over x402.",
       dataUse: { storesInputs: false, trainsOnInputs: false },
       ...(config.agentId === undefined ? {} : { agentId: config.agentId }),
     },

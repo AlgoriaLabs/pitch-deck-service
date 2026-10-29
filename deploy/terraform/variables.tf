@@ -89,7 +89,7 @@ variable "price_usdc" {
 # Per-network values. Fill in mainnet ones when you're ready; they're ignored on testnet.
 
 variable "pay_to_testnet" {
-  description = "Public G... address that receives testnet USDC (never a secret key)"
+  description = "Your wallet's public G... address that receives testnet USDC (`npm run wallet` prints it). Never a secret key."
   type        = string
 }
 
@@ -99,7 +99,7 @@ variable "pay_to_mainnet" {
 }
 
 variable "agent_id_testnet" {
-  description = "8004 agent id after `npm run kit -- register`. Empty until then."
+  description = "8004 agent id. `npm run register` writes it here."
   type        = string
   default     = ""
 }
@@ -110,7 +110,7 @@ variable "agent_id_mainnet" {
 }
 
 variable "soroban_rpc_url_mainnet" {
-  description = "Mainnet has no default public RPC; pick one from developers.stellar.org/docs/data/apis/rpc/providers"
+  description = "Optional. Default: https://mainnet.sorobanrpc.com (public). Providers: developers.stellar.org/docs/data/apis/rpc/providers"
   type        = string
   default     = ""
 }

@@ -3,11 +3,12 @@
 A paid AI agent service on Stellar. Send it a public GitHub repository, get back a 10-slide PowerPoint pitch deck.
 Buyers (people or agents) pay per deck in USDC over x402 and are charged **only if the deck is delivered**.
 
-Built on [Stellar Agent Services](https://github.com/AlgoriaLabs/stellar-agent-services) Provider Standard v1, and
+Built on [Stellar Agent Services](https://github.com/AlgoriaLabs/stellar-agent-services) Provider Standard v1 (Provider Kit
+@ `afa5cd0`), and
 discoverable through [Stellar Agent Search](https://github.com/berkingurcan/stellar-agent-search) once registered
 on Stellar 8004.
 
-👉 **Deploying? [DEPLOY.md](DEPLOY.md)** (5 moves, one page). Full walkthrough incl. local testing: [SETUP.md](SETUP.md).
+👉 **Deploying? [DEPLOY.md](DEPLOY.md)** (6 short steps, one page). On your laptop: [SETUP.md](SETUP.md).
 
 ## How it works
 
@@ -44,21 +45,32 @@ numbers) · use cases · roadmap · the ask. Speaker notes included. All shapes 
 
 One variable: `STELLAR_NETWORK=testnet|mainnet` (`.env`), or `stellar_network` in `terraform.tfvars`.
 Each network has its own `PAY_TO_*`, `AGENT_ID_*` and job database, so the two never mix. Mainnet refuses to
-start until its RPC URL and facilitator key are set.
+start until its facilitator key is set.
+
+## Wallets and keys
+
+Nothing here holds a Stellar secret key: not the server, not the scripts. The wallet that receives payments is
+your own browser wallet (Freighter, xBull, Albedo, Hana, Ledger…). The two owner actions, the USDC trustline
+(`npm run wallet`) and the 8004 registration (`npm run register`), open a page on your computer where you
+approve them in that wallet. The registering wallet becomes the agent's wallet, which is why it must be `payTo`.
 
 ## Commands
 
 | | |
 | --- | --- |
-| `npm run vendor` | fetch + build provider-kit, verifier, payment client (pinned commit) |
+| `npm ci` | install (the Provider Kit is packed in `vendor/`) |
 | `npm test` | offline tests, incl. a full 402 → pay → download flow |
 | `npm run deck -- <github url>` | make a deck locally, no payment |
-| `npm run deck -- --local <dir>` | same, from a local folder (offline) |
-| `npm start` | run the provider |
-| `npm run kit -- check --manifest <url>` | provider-kit conformance check |
-| `npm run kit -- register --manifest <url> --source <key>` | register on Stellar 8004 |
-| `npm run verifier -- check <url>` | external standard check (C1–C7) |
-| `npm run stellar-pay -- pay <manifest> pitch-deck '<json>'` | pay your own service |
+| `npm start` | run the service |
+| `npm run wallet [-- mainnet]` | set up the wallet buyers pay, approved in your browser wallet |
+| `npm run register` | register on Stellar 8004, approved in your wallet; saves the agent id to tfvars |
+| `npm run try` | pay for one deck with test money (throwaway payer, testnet only) |
+| `npm run check` | Provider Standard self-check, and how agents find you in search |
+| `npm run verify` | external standard check C1–C7 (after `npm run update-kit` once) |
+| `npm run update-kit` | update the packed Provider Kit to a pinned stellar-agent-services commit |
+
+`check`, `try`, `register` and `verify` find the service by themselves: `$MANIFEST`, else `terraform output`,
+else `http://localhost:8787`.
 
 ## Layout
 
@@ -73,6 +85,8 @@ start until its RPC URL and facilitator key are set.
 | `src/pipeline/llm.ts` | OpenAI-compatible fallback chain |
 | `src/pipeline/render.ts` | PPTX template (pptxgenjs) |
 | `src/pipeline/cache.ts`, `src/storage.ts` | outline cache, deck files |
+| `scripts/kit.mjs` | `npm run wallet / check / try / register / verify` |
+| `vendor/` | the Provider Kit, packed (`scripts/update-kit.sh` refreshes it; commit it) |
 | `deploy/terraform/` | OCI network + VM + reserved IP, cloud-init, deploy-on-apply |
 
 ## Known limits (v1)

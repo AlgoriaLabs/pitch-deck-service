@@ -13,14 +13,12 @@ chmod 600 /tmp/pitch-deck-agent.env
 echo "→ unpacking release $(basename "$RELEASE")"
 mkdir -p "$RELEASE"
 unzip -q /tmp/pitch-deck-agent.zip -d "$RELEASE"
-# Reuse the built kit from the previous release (a fresh build takes ~1 minute).
-if [ -d "$APP/current/vendor" ]; then cp -a "$APP/current/vendor" "$RELEASE/vendor"; fi
 chown -R deck:deck "$RELEASE"
 
 echo "→ building"
 cd "$RELEASE"
-as_deck bash scripts/vendor-kit.sh
-as_deck npm install --no-audit --no-fund --loglevel=error
+# The Provider Kit comes packed in vendor/*.tgz, so this is a plain install from the lockfile.
+as_deck npm ci --no-audit --no-fund --loglevel=error
 as_deck npm run build --silent
 as_deck npm prune --omit=dev --no-audit --no-fund --loglevel=error
 

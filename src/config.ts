@@ -41,11 +41,13 @@ export interface Config {
 }
 
 /** Network defaults. Every value can be overridden per network with the variables in .env.example. */
-const NETWORKS: Record<NetworkName, { network: StellarNetwork; facilitator: string; price: string }> = {
+const NETWORKS: Record<NetworkName, { network: StellarNetwork; facilitator: string; rpc: string | undefined; price: string }> = {
   // The facilitator stellar-agent-services develops against: sponsored fees, no key.
-  testnet: { network: "stellar:testnet", facilitator: "https://x402.org/facilitator", price: "0.10" },
-  // OpenZeppelin's free public Stellar facilitator (sponsored fees). Needs an API key: see SETUP.md.
-  mainnet: { network: "stellar:pubnet", facilitator: "https://channels.openzeppelin.com/x402", price: "0.10" },
+  testnet: { network: "stellar:testnet", facilitator: "https://x402.org/facilitator", rpc: SOROBAN_RPC_URL["stellar:testnet"], price: "0.10" },
+  // OpenZeppelin's free public Stellar facilitator (sponsored fees). Needs an API key: see DEPLOY.md.
+  // The RPC is the public endpoint the kit's own 8004 tooling uses on mainnet (@trionlabs/stellar8004
+  // MAINNET_CONFIG). SDF runs none, so the protocol package leaves pubnet without a default.
+  mainnet: { network: "stellar:pubnet", facilitator: "https://channels.openzeppelin.com/x402", rpc: "https://mainnet.sorobanrpc.com", price: "0.10" },
 };
 
 /** Default LLM chain: free tiers first. Each entry is used only when its API key is set. */
@@ -95,12 +97,12 @@ export function loadConfig(env: Env = process.env): Config {
   const facilitatorUrl = pick("FACILITATOR_URL") ?? defaults.facilitator;
   const facilitatorKey = pick("FACILITATOR_API_KEY");
   if (networkName === "mainnet" && facilitatorUrl.includes("openzeppelin.com") && facilitatorKey === undefined) {
-    problems.push("set FACILITATOR_API_KEY_MAINNET: the OpenZeppelin facilitator needs an API key (SETUP.md, step M2)");
+    problems.push("set FACILITATOR_API_KEY_MAINNET: the OpenZeppelin facilitator needs an API key (DEPLOY.md, Mainnet)");
   }
 
-  // Testnet has a public Soroban RPC built in; mainnet has none, so it must be set.
-  const rpcUrl = pick("SOROBAN_RPC_URL") ?? SOROBAN_RPC_URL[defaults.network];
-  if (rpcUrl === undefined) problems.push("set SOROBAN_RPC_URL_MAINNET: mainnet has no default Soroban RPC (SETUP.md, step M1)");
+  // Reads the chain to decide payment_uncertain jobs and to time on-success jobs. Public defaults on both
+  // networks; set SOROBAN_RPC_URL_MAINNET to your own provider for more headroom.
+  const rpcUrl = pick("SOROBAN_RPC_URL") ?? defaults.rpc;
 
   const priceUsdc = pick("PRICE_USDC") ?? defaults.price;
   if (!/^\d+(\.\d{1,7})?$/.test(priceUsdc) || Number(priceUsdc) <= 0) problems.push("PRICE_USDC must be a positive decimal such as 0.10");

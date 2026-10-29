@@ -9,27 +9,30 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "vendor": "bash scripts/vendor-kit.sh",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test --disable-warning=ExperimentalWarning 'dist-test/test/**/*.test.js'",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/server.js",
     "deck": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/cli/deck.js",
-    "kit": "node vendor/stellar-agent-services/packages/provider-kit/dist/cli/index.js",
-    "verifier": "node vendor/stellar-agent-services/packages/verifier/dist/cli/index.js",
-    "stellar-pay": "node vendor/stellar-agent-services/packages/payment-client/dist/cli.js"
+    "kit": "node scripts/kit.mjs kit",
+    "wallet": "node scripts/kit.mjs wallet",
+    "check": "node scripts/kit.mjs check",
+    "try": "node scripts/kit.mjs try",
+    "register": "node scripts/kit.mjs register",
+    "verify": "node scripts/kit.mjs verify",
+    "update-kit": "bash scripts/update-kit.sh"
   },
   "dependencies": {
     "@hono/node-server": "2.1.5",
-    "@stellar-agent-services/protocol": "file:vendor/pack/stellar-agent-services-protocol-0.0.0.tgz",
-    "@stellar-agent-services/provider-kit": "file:vendor/pack/stellar-agent-services-provider-kit-0.0.0.tgz",
+    "@stellar-agent-services/payment-client": "file:vendor/stellar-agent-services-payment-client-0.0.0.tgz",
+    "@stellar-agent-services/protocol": "file:vendor/stellar-agent-services-protocol-0.0.0.tgz",
+    "@stellar-agent-services/provider-kit": "file:vendor/stellar-agent-services-provider-kit-0.0.0.tgz",
     "ajv": "8.20.0",
     "hono": "4.13.14",
     "pptxgenjs": "4.0.1",
     "tar": "7.5.22"
   },
   "overrides": {
-    "@stellar-agent-services/protocol": "$@stellar-agent-services/protocol",
     "@stellar/stellar-sdk": "16.3.1",
     "axios": "1.20.0"
   },

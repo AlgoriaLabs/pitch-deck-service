@@ -8,7 +8,7 @@ output "origin" {
 }
 
 output "manifest_url" {
-  description = "Paste this into provider-kit check / register and stellar-pay"
+  description = "Where agents read the service. npm run check / try / register find it here by themselves."
   value       = "${local.origin}/.well-known/stellar-agent-services.json"
 }
 

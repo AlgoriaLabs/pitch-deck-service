@@ -26,6 +26,20 @@ export function pitchDeckService(deps: PipelineDeps, priceUsdc: string): Service
     tags: ["pitch-deck", "pptx", "presentation", "slides", "github", "startup"],
     capacity: { concurrency: 2, maxQueued: 10, maxQueueWaitSeconds: 60 },
     maxInputBytes: 4096,
+    // Agents read this to see what to send, and `provider-kit try` pays with it (a real deck, ~1 minute).
+    examples: [
+      {
+        input: { repoUrl: "https://github.com/AlgoriaLabs/stellar-agent-services" },
+        output: {
+          deckUrl: "https://deck.example.com/decks/Yk3v9QhJm2nTzB8rLw4xPa7sC1dEfGhIjKlMnOpQrSt.pptx",
+          expiresAt: "2026-11-01T12:00:00.000Z",
+          title: "Stellar Agent Services — pitch deck",
+          slideCount: 10,
+          repo: "https://github.com/AlgoriaLabs/stellar-agent-services",
+          commitSha: "afa5cd09966bd6c0977a6bad4de4a7b7fbcd422c",
+        },
+      },
+    ],
     inputSchema: {
       type: "object",
       required: ["repoUrl"],

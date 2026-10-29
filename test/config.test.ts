@@ -23,7 +23,7 @@ test("STELLAR_NETWORK=mainnet switches payTo, facilitator, RPC and job database 
   const config = loadConfig({
     ...base,
     STELLAR_NETWORK: "mainnet",
-    SOROBAN_RPC_URL_MAINNET: "https://mainnet.sorobanrpc.com",
+    SOROBAN_RPC_URL_MAINNET: "https://rpc.mine.example",
     FACILITATOR_API_KEY_MAINNET: "secret",
     AGENT_ID_MAINNET: "42",
     AGENT_ID_TESTNET: "7",
@@ -33,15 +33,21 @@ test("STELLAR_NETWORK=mainnet switches payTo, facilitator, RPC and job database 
   assert.equal(config.agentId, 42);
   assert.equal(config.facilitatorUrl, "https://channels.openzeppelin.com/x402");
   assert.deepEqual(config.facilitatorHeaders, { Authorization: "Bearer secret" });
-  assert.equal(config.rpcUrl, "https://mainnet.sorobanrpc.com");
+  assert.equal(config.rpcUrl, "https://rpc.mine.example");
   assert.equal(config.jobDbPath, "./data/jobs-mainnet.sqlite");
 });
 
-test("mainnet without RPC or facilitator key refuses to start, naming both", () => {
+test("mainnet without a facilitator key refuses to start, and names it", () => {
   assert.throws(
     () => loadConfig({ ...base, STELLAR_NETWORK: "pubnet" }),
-    (error: unknown) => error instanceof ConfigError && /SOROBAN_RPC_URL_MAINNET/.test(error.message) && /FACILITATOR_API_KEY_MAINNET/.test(error.message),
+    (error: unknown) => error instanceof ConfigError && /FACILITATOR_API_KEY_MAINNET/.test(error.message),
   );
+});
+
+test("mainnet has a public RPC by default, and SOROBAN_RPC_URL_MAINNET overrides it", () => {
+  const env = { ...base, STELLAR_NETWORK: "mainnet", FACILITATOR_API_KEY_MAINNET: "k" };
+  assert.equal(loadConfig(env).rpcUrl, "https://mainnet.sorobanrpc.com");
+  assert.equal(loadConfig({ ...env, SOROBAN_RPC_URL_MAINNET: "https://rpc.mine.example" }).rpcUrl, "https://rpc.mine.example");
 });
 
 test("a secret key in PAY_TO is rejected", () => {
