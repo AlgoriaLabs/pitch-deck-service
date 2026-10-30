@@ -1,0 +1,107 @@
+# Tests every push and pull request. Deploys main to the server, once `npm run ci:setup` has turned it on.
+#
+#   test    npm test, a sample deck (no AI, downloadable from the run), terraform validate. No secrets.
+#   deploy  only on main, only when the repository variable DEPLOY_ENABLED is "true". Same command as a laptop
+#           deploy (scripts/deploy.mjs), against the same shared state, which locks so two deploys never overlap.
+#
+# Secrets the deploy job uses (set by npm run ci:setup): OCI_CONFIG, OCI_API_KEY, SSH_PRIVATE_KEY, SSH_PUBLIC_KEY,
+# TFVARS. They are written to files for the deploy step only and deleted after it. No Stellar key exists anywhere:
+# the wallet steps (npm run wallet / register) stay on your laptop, approved in your browser wallet.
+
+name: ci-cd
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Make a sample deck from this repository (canned text, no AI key)
+        run: npm run build && LLM_MOCK=1 npm run deck -- --local .
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sample-deck
+          path: "*.pptx"
+          retention-days: 7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.13.x"
+          terraform_wrapper: false
+      - name: Validate Terraform
+        run: |
+          terraform -chdir=deploy/terraform init -backend=false -input=false
+          terraform -chdir=deploy/terraform validate
+          terraform -chdir=deploy/state init -backend=false -input=false
+          terraform -chdir=deploy/state validate
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # Settings → Environments → production: add yourself as a required reviewer to approve each deploy.
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.13.x"
+          terraform_wrapper: false
+
+      - name: Write credentials from secrets
+        env:
+          OCI_CONFIG: ${{ secrets.OCI_CONFIG }}
+          OCI_API_KEY: ${{ secrets.OCI_API_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+          TFVARS: ${{ secrets.TFVARS }}
+        run: |
+          for name in OCI_CONFIG OCI_API_KEY SSH_PRIVATE_KEY SSH_PUBLIC_KEY TFVARS; do
+            if [ -z "${!name}" ]; then echo "::error::Secret $name is missing. Run npm run ci:setup on your laptop."; exit 1; fi
+          done
+          umask 077
+          mkdir -p ~/.oci ~/.ssh
+          printf '%s\n' "$OCI_API_KEY" > ~/.oci/ci_api_key.pem
+          { printf '%s\n' "$OCI_CONFIG"; echo "key_file=$HOME/.oci/ci_api_key.pem"; } > ~/.oci/config
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy
+          printf '%s\n' "$SSH_PUBLIC_KEY" > ~/.ssh/deploy.pub
+          printf '%s\n' "$TFVARS" > deploy/terraform/terraform.tfvars
+
+      - name: Deploy
+        env:
+          TF_IN_AUTOMATION: "1"
+        run: node scripts/deploy.mjs --ci
+
+      - name: Check the live service
+        # Shows the self-check and how agents find the service. Before the first `npm run register` the
+        # registration line fails, so this never fails the deploy.
+        continue-on-error: true
+        run: npm run check
+
+      - name: Delete credentials
+        if: always()
+        run: rm -rf ~/.oci ~/.ssh/deploy ~/.ssh/deploy.pub deploy/terraform/terraform.tfvars

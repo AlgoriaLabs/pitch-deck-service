@@ -10,5 +10,9 @@ deploy/terraform/.terraform/
 deploy/terraform/*.tfstate*
 deploy/terraform/terraform.tfvars
 deploy/terraform/.build/
+deploy/terraform/*.migrated-backup
+deploy/state/.terraform/
+deploy/state/.terraform.lock.hcl
+deploy/state/*.tfstate*
 .DS_Store
 dist-test/

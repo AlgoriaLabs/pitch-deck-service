@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.6"
+  required_version = ">= 1.12" # the "oci" state backend
   required_providers {
     oci = {
       source  = "oracle/oci"

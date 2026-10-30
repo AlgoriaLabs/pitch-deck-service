@@ -39,5 +39,5 @@ echo "$KIT_COMMIT" > "$ROOT/vendor/KIT_COMMIT"
 echo "→ reinstalling (refreshes package-lock.json)"
 (cd "$ROOT" && rm -rf node_modules/@stellar-agent-services && npm install --no-audit --no-fund --loglevel=error)
 
-ls -1 "$ROOT"/vendor/*.tgz | sed "s|$ROOT/||"
+for file in "$ROOT"/vendor/*.tgz; do echo "vendor/$(basename "$file")"; done
 echo "✓ kit updated. Commit vendor/ and package-lock.json."

@@ -4,11 +4,11 @@
 > ⏱ about 30 min the first time, mostly waiting.
 
 ```
-1 Get keys → 2 Wallet → 3 Fill form → 4 Deploy → 5 Register → 6 Try it        later: Mainnet
-  10 min      2 min      2 min          10 min      3 min         2 min
+1 Get keys → 2 Wallet → 3 Fill form → 4 Deploy → 5 Register → 6 Try it → 7 Auto-deploy        later: Mainnet
+  10 min      2 min      2 min          10 min      3 min         2 min      5 min
 ```
 
-You need: **Node.js 24**, **Terraform**, and a **Stellar browser wallet** (Freighter, xBull, Albedo, Hana…).
+You need: **Node.js 24**, **Terraform 1.12+**, and a **Stellar browser wallet** (Freighter, xBull, Albedo, Hana…).
 No Stellar CLI. Your wallet signs everything, in your browser. No secret key is ever typed or saved.
 
 ---
@@ -20,7 +20,8 @@ No Stellar CLI. Your wallet signs everything, in your browser. No secret key is 
 - [ ] **Oracle API key**: console → profile icon → **My profile** → **API keys** → **Add API key** →
       **Generate API key pair** → **Download private key** → **Add**.
       Copy the text box it shows into `~/.oci/config`. Fix its `key_file=` line to point at the downloaded key.
-- [ ] **SSH key**: `ls ~/.ssh/id_ed25519.pub || ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519`
+- [ ] **SSH key, just for this server**:
+      `ls ~/.ssh/pitch-deck.pub || ssh-keygen -t ed25519 -N "" -C pitch-deck -f ~/.ssh/pitch-deck`
 - [ ] **Gemini key** (free): [aistudio.google.com](https://aistudio.google.com) → **Get API key**
 
 ---
@@ -66,13 +67,13 @@ gemini_api_key   = "…"                     # from step 1
 ## 4 · Deploy · 10 min
 
 ```bash
-terraform -chdir=deploy/terraform init
-terraform -chdir=deploy/terraform apply      # type: yes
+npm run deploy        # shows the plan, type: yes
 ```
 
+The first time it also makes a small private bucket for Terraform's state (1 min).
 Minutes 2–8 show `Still creating…`. **Normal.** The server is installing. Get water.
 
-✅ You see `✓ healthy: {"ok":true,"network":"testnet"}`
+✅ You see `✓ Deployed on testnet: https://…`
 
 ---
 
@@ -80,13 +81,12 @@ Minutes 2–8 show `Still creating…`. **Normal.** The server is installing. Ge
 
 Puts your service on the Stellar map, so agents can find it.
 
-- [ ] Run `npm run register`. A page opens. **Connect** the same wallet, **approve**.
-
-✅ You see `✓ Saved agent_id_testnet = "…"`. Then publish it:
-
 ```bash
-terraform -chdir=deploy/terraform apply      # ~1 min
+npm run register      # a page opens: connect the same wallet, approve
+npm run deploy        # publishes the agent id, ~1 min
 ```
+
+✅ After register you see `✓ Saved agent_id_testnet = "…"`.
 
 ---
 
@@ -104,7 +104,29 @@ It asks `Pay 0.10 USDC in test money?` → press **Enter**. Wait ~1 min.
 npm run check        # every line green
 ```
 
-🎉 **Done. You're live on testnet.**
+🎉 **Live on testnet.**
+
+---
+
+## 7 · Auto-deploy (CI/CD) · 5 min
+
+After this, every `git push` to `main` tests the code and deploys it. You don't run deploy commands any more.
+
+- [ ] GitHub CLI: `brew install gh`, then `gh auth login`
+- [ ] Run:
+
+```bash
+npm run ci:setup
+```
+
+It uploads 5 encrypted GitHub secrets (Oracle key, server SSH key, `terraform.tfvars`) and turns deploys on.
+
+- [ ] Do the 3 `git` commands it prints. That push is your first automatic deploy.
+
+✅ GitHub → **Actions** → `ci-cd` shows **test ✓ → deploy ✓**.
+
+> Still do these on your laptop: `npm run wallet` and `npm run register`. They need your wallet, on purpose:
+> no wallet key ever goes into CI. After `register`, run `npm run deploy` once: it also updates GitHub.
 
 ---
 
@@ -123,14 +145,14 @@ domain                      = "deck.example.com"
 ```
 
 ```bash
-terraform -chdir=deploy/terraform apply
-npm run register                           # approve in your wallet (on Mainnet)
-terraform -chdir=deploy/terraform apply
+npm run deploy
+npm run register      # approve in your wallet (on Mainnet)
+npm run deploy
 npm run check
 ```
 
 Something missing? The deploy **stops before switching** and names it. The old version keeps running.
-Back to testnet: `stellar_network = "testnet"` → apply.
+Back to testnet: `stellar_network = "testnet"` → `npm run deploy`.
 
 ---
 
@@ -138,12 +160,15 @@ Back to testnet: `stellar_network = "testnet"` → apply.
 
 | I want to… | Run |
 | --- | --- |
-| Ship a code change | `terraform -chdir=deploy/terraform apply` |
+| Ship a code change | `git push` (with step 7), or `npm run deploy` |
+| Change price, keys, network | edit `terraform.tfvars` → `npm run deploy` (also updates GitHub) |
 | Check the service | `npm run check` |
 | Pay for one test deck | `npm run try` |
-| See logs | `$(terraform -chdir=deploy/terraform output -raw logs)` |
-| Change price or keys | edit `terraform.tfvars` → apply |
-| Update the Provider Kit | `npm run update-kit` → commit → apply |
+| See deploys | GitHub → **Actions** |
+| See server logs | `$(terraform -chdir=deploy/terraform output -raw logs)` |
+| Approve each deploy by hand | GitHub → Settings → Environments → `production` → Required reviewers (public repos, or paid plans) |
+| Pause auto-deploys | GitHub → Settings → Variables → `DEPLOY_ENABLED` = `false` |
+| Update the Provider Kit | `npm run update-kit` → commit → push |
 | Delete everything | `terraform -chdir=deploy/terraform destroy` |
 
 ## 🆘 If this, then that
@@ -152,13 +177,17 @@ Back to testnet: `stellar_network = "testnet"` → apply.
 | --- | --- |
 | The wallet page didn't open | Copy the `http://localhost:8790/#…` link from the terminal into your browser. |
 | "Switch it to G…" on the wallet page | Your wallet connected another account. Pick the `pay_to` account in the wallet. |
-| `Out of host capacity` | Add `availability_domain_index = 1` (or `2`) to tfvars → apply. Or retry in an hour. |
-| `Still creating…` over 15 min | `ssh ubuntu@$(terraform -chdir=deploy/terraform output -raw public_ip) sudo tail -50 /var/log/cloud-init-output.log` |
-| `✗ deploy stopped` | Read the line under it: it names the missing value. Fix tfvars → apply. |
-| `✗ not healthy` | Check the logs (cheat sheet). |
+| `Out of host capacity` | Add `availability_domain_index = 1` (or `2`) to tfvars → `npm run deploy`. Or retry in an hour. |
+| `Still creating…` over 15 min | `ssh -i ~/.ssh/pitch-deck ubuntu@$(terraform -chdir=deploy/terraform output -raw public_ip) sudo tail -50 /var/log/cloud-init-output.log` |
+| `✗ deploy stopped` | Read the line under it: it names the missing value. Fix tfvars → `npm run deploy`. |
+| `✗ not healthy` | Check the server logs (cheat sheet). |
+| CI: `Secret … is missing` | Run `npm run ci:setup` again. |
+| CI deploy can't connect over SSH | Remove `ssh_allowed_cidr` from tfvars → `npm run deploy`. |
+| `local state, but the shared state already exists` | This laptop has an old state file. Ask before deleting `deploy/terraform/terraform.tfstate`. |
+| You deployed before with `~/.ssh/id_ed25519` | Add `ssh_public_key_path = "~/.ssh/id_ed25519.pub"` and `ssh_private_key_path = "~/.ssh/id_ed25519"` to tfvars. |
 | `npm run try`: no USDC for sale | The testnet market is empty right now. Try again later. Nothing was paid. |
-| Jobs fail: `GitHub rate limit` | Add `github_token` to tfvars ([make one](https://github.com/settings/personal-access-tokens), no scopes) → apply. |
-| Jobs fail: `no LLM produced a usable outline` | Free AI quota used up. Add `groq_api_key` ([console.groq.com](https://console.groq.com)) → apply. Nobody was charged. |
-| Browser shows a certificate error | Set `domain` in tfvars (sslip.io can hit limits) → apply. |
+| Jobs fail: `GitHub rate limit` | Add `github_token` to tfvars ([make one](https://github.com/settings/personal-access-tokens), no scopes) → `npm run deploy`. |
+| Jobs fail: `no LLM produced a usable outline` | Free AI quota used up. Add `groq_api_key` ([console.groq.com](https://console.groq.com)) → `npm run deploy`. Nobody was charged. |
+| Browser shows a certificate error | Set `domain` in tfvars (sslip.io can hit limits) → `npm run deploy`. |
 
 Want to see a deck on your laptop first, before any cloud? [SETUP.md](SETUP.md).

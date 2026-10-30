@@ -5,7 +5,7 @@
 //   npm run check                 check the service, and see how agents find it
 //   npm run try                   pay for one deck with test money (testnet only)
 //   npm run register              register on Stellar 8004, approved in your browser wallet; saves the agent id
-//                                 to deploy/terraform/terraform.tfvars
+//                                 to deploy/terraform/terraform.tfvars (then: npm run deploy)
 //   npm run verify                the external standard check (C1–C7); needs scripts/update-kit.sh once
 //   npm run kit -- <anything>     the provider-kit CLI itself
 //
@@ -16,6 +16,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { setTfvar, TFVARS } from "./lib/deploy-lib.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KIT = join(root, "node_modules/@stellar-agent-services/provider-kit/dist/cli/index.js");
@@ -60,16 +61,12 @@ function afterRegister(status, output) {
   if (status === 0 && match) {
     const [, id, net] = match;
     const key = `agent_id_${net === "pubnet" ? "mainnet" : "testnet"}`;
-    const tfvars = join(root, "deploy/terraform/terraform.tfvars");
-    if (existsSync(tfvars)) {
-      const text = readFileSync(tfvars, "utf8");
-      const line = `${key} = "${id}"`;
-      const pattern = new RegExp(`^\\s*${key}\\s*=.*$`, "m");
-      writeFileSync(tfvars, pattern.test(text) ? text.replace(pattern, line) : `${text.trimEnd()}\n${line}\n`);
-      console.log(`\n✓ Saved ${line} to deploy/terraform/terraform.tfvars`);
-      console.log("  Next: terraform -chdir=deploy/terraform apply   (publishes the id, ~1 min)");
+    if (existsSync(TFVARS)) {
+      writeFileSync(TFVARS, setTfvar(readFileSync(TFVARS, "utf8"), key, id));
+      console.log(`\n✓ Saved ${key} = "${id}" to deploy/terraform/terraform.tfvars`);
+      console.log("  Next: npm run deploy   (publishes the id, ~1 min; also updates GitHub when CI/CD is on)");
     } else {
-      console.log(`\n→ Put ${key} = "${id}" in deploy/terraform/terraform.tfvars, then terraform apply.`);
+      console.log(`\n→ Put ${key} = "${id}" in deploy/terraform/terraform.tfvars, then npm run deploy.`);
     }
   }
   process.exit(status);

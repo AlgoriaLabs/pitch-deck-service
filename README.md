@@ -25,6 +25,8 @@ buyer ──POST /services/pitch-deck/jobs──▶ provider-kit ──402──
 | Piece | Choice | Cost |
 | --- | --- | --- |
 | Hosting | Oracle Cloud Always Free Ampere A1 VM, via Terraform | $0 |
+| CI/CD | GitHub Actions: test → deploy on push to `main` | $0 (public repo; 2,000 min/month private) |
+| Terraform state | OCI Object Storage bucket, private, versioned, locked | $0 (Always Free 20 GB) |
 | HTTPS | Caddy + Let's Encrypt (`<ip>.sslip.io` or your domain) | $0 |
 | Database | SQLite (provider-kit job store + outline cache) on the VM | $0 |
 | Deck files | VM disk, deleted after 24 h | $0 |
@@ -67,6 +69,8 @@ approve them in that wallet. The registering wallet becomes the agent's wallet, 
 | `npm run try` | pay for one deck with test money (throwaway payer, testnet only) |
 | `npm run check` | Provider Standard self-check, and how agents find you in search |
 | `npm run verify` | external standard check C1–C7 (after `npm run update-kit` once) |
+| `npm run deploy` | deploy or update the server (Terraform, shared state in an OCI bucket) |
+| `npm run ci:setup` | turn on automatic deploys: every push to `main` tests and deploys |
 | `npm run update-kit` | update the packed Provider Kit to a pinned stellar-agent-services commit |
 
 `check`, `try`, `register` and `verify` find the service by themselves: `$MANIFEST`, else `terraform output`,
@@ -87,7 +91,10 @@ else `http://localhost:8787`.
 | `src/pipeline/cache.ts`, `src/storage.ts` | outline cache, deck files |
 | `scripts/kit.mjs` | `npm run wallet / check / try / register / verify` |
 | `vendor/` | the Provider Kit, packed (`scripts/update-kit.sh` refreshes it; commit it) |
+| `scripts/deploy.mjs`, `scripts/ci-setup.mjs` | `npm run deploy`, `npm run ci:setup` |
 | `deploy/terraform/` | OCI network + VM + reserved IP, cloud-init, deploy-on-apply |
+| `deploy/state/` | the private bucket for Terraform state (made once by `npm run deploy`) |
+| `.github/workflows/ci-cd.yml` | test on every push and PR; deploy `main` once `ci:setup` turned it on |
 
 ## Known limits (v1)
 

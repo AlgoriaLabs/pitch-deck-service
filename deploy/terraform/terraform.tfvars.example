@@ -4,7 +4,7 @@
 region           = "eu-frankfurt-1"                # ★ the region= line in ~/.oci/config
 compartment_ocid = "ocid1.tenancy.oc1..aaaa..."    # ★ the tenancy= line in ~/.oci/config
 # availability_domain_index = 1                   # try 1 or 2 on "Out of host capacity"
-# ssh_allowed_cidr = "203.0.113.7/32"              # your IP, recommended
+# ssh_allowed_cidr = "203.0.113.7/32"              # your IP only; leave unset with CI/CD (step 7)
 
 # ─── Address ───
 acme_email = "you@example.com"                     # ★

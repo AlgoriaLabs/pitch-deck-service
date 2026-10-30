@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test --disable-warning=ExperimentalWarning 'dist-test/test/**/*.test.js'",
+    "test": "tsc -p tsconfig.test.json && node --test --disable-warning=ExperimentalWarning 'dist-test/test/**/*.test.js' 'scripts/**/*.test.mjs'",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/server.js",
     "deck": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/cli/deck.js",
     "kit": "node scripts/kit.mjs kit",
@@ -20,7 +20,10 @@
     "try": "node scripts/kit.mjs try",
     "register": "node scripts/kit.mjs register",
     "verify": "node scripts/kit.mjs verify",
-    "update-kit": "bash scripts/update-kit.sh"
+    "update-kit": "bash scripts/update-kit.sh",
+    "deploy": "node scripts/deploy.mjs",
+    "ci:setup": "node scripts/ci-setup.mjs",
+    "ci:sync": "node scripts/ci-setup.mjs --sync"
   },
   "dependencies": {
     "@hono/node-server": "2.1.5",

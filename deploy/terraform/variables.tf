@@ -40,18 +40,19 @@ variable "boot_volume_gb" {
 }
 
 variable "ssh_public_key_path" {
-  type    = string
-  default = "~/.ssh/id_ed25519.pub"
+  description = "A key just for this server (DEPLOY.md step 1), so CI/CD can hold it without your own key."
+  type        = string
+  default     = "~/.ssh/pitch-deck.pub"
 }
 
 variable "ssh_private_key_path" {
   description = "Used by Terraform to upload the app over SSH."
   type        = string
-  default     = "~/.ssh/id_ed25519"
+  default     = "~/.ssh/pitch-deck"
 }
 
 variable "ssh_allowed_cidr" {
-  description = "Who may SSH in. Put your own IP/32 here."
+  description = "Who may SSH in (keys only). Keep 0.0.0.0/0 with CI/CD: GitHub's runners have changing IPs."
   type        = string
   default     = "0.0.0.0/0"
 }

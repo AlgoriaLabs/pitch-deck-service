@@ -53,5 +53,6 @@ for i in $(seq 1 30); do
   sleep 2
 done
 
-# Keep the last 3 releases.
+# Keep the last 3 releases. Their names are timestamps, so ls is safe here.
+# shellcheck disable=SC2012
 ls -1dt "$APP"/releases/* | tail -n +4 | xargs -r rm -rf
