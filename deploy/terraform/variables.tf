@@ -66,8 +66,9 @@ variable "domain" {
 }
 
 variable "acme_email" {
-  description = "Email for Let's Encrypt certificate notices."
+  description = "Optional email for the Let's Encrypt account. Empty: certificates are issued without one."
   type        = string
+  default     = ""
 }
 
 # ─── The switch ──────────────────────────────────────────────────────────────

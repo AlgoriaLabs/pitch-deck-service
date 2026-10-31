@@ -52,12 +52,11 @@ A page opens. **Connect** your wallet, **approve**. It gets free test money and 
 cp deploy/terraform/terraform.tfvars.example deploy/terraform/terraform.tfvars
 ```
 
-Open `deploy/terraform/terraform.tfvars`. Fill these 5 lines:
+Open `deploy/terraform/terraform.tfvars`. Fill these 4 lines:
 
 ```hcl
 region           = "eu-frankfurt-1"        # region= line in ~/.oci/config
 compartment_ocid = "ocid1.tenancy.oc1..…"  # tenancy= line in ~/.oci/config
-acme_email       = "you@example.com"
 pay_to_testnet   = "G…"                    # from step 2
 gemini_api_key   = "…"                     # from step 1
 ```

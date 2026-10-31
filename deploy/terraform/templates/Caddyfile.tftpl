@@ -1,7 +1,9 @@
 # Written by Terraform (deploy.tf).
+%{ if acme_email != "" ~}
 {
 	email ${acme_email}
 }
+%{ endif ~}
 
 ${domain} {
 	encode gzip
