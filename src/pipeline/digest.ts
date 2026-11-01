@@ -12,6 +12,8 @@ export interface RepoFacts {
   description: string;
   stars: number;
   forks: number;
+  commits: number | undefined;
+  contributors: number | undefined;
   openIssues: number;
   license: string;
   createdAt: string;
@@ -83,6 +85,8 @@ export function buildDigest(snapshot: RepoSnapshot): Digest {
     description: meta.description,
     stars: meta.stars,
     forks: meta.forks,
+    commits: meta.commits,
+    contributors: meta.contributors,
     openIssues: meta.openIssues,
     license: meta.license,
     createdAt: meta.createdAt,
@@ -127,7 +131,8 @@ function repoHeader(facts: RepoFacts): string {
     `topics: ${facts.topics.join(", ") || "(none)"}`,
     `languages: ${facts.languages.map((l) => `${l.name} ${l.share}%`).join(", ")}`,
     `detected stack: ${facts.stack.join(", ") || "(unknown)"}`,
-    `stars: ${facts.stars}, forks: ${facts.forks}, open issues: ${facts.openIssues}, license: ${facts.license}`,
+    `stars: ${facts.stars}, forks: ${facts.forks}, commits: ${facts.commits ?? "unknown"}, contributors: ${facts.contributors ?? "unknown"}`,
+    `open issues: ${facts.openIssues}, license: ${facts.license}`,
     `created: ${facts.createdAt.slice(0, 10)}, last push: ${facts.pushedAt.slice(0, 10)}, latest release: ${facts.latestRelease ?? "none"}`,
     `files: ${facts.fileCount}, tests: ${facts.hasTests}, CI: ${facts.hasCi}, Docker: ${facts.hasDocker}, docs folder: ${facts.hasDocs}`,
   ].join("\n");

@@ -21,6 +21,9 @@ export interface RepoMeta {
   stars: number;
   forks: number;
   openIssues: number;
+  /** Commits on the requested ref and contributor accounts; undefined when GitHub doesn't say. */
+  commits: number | undefined;
+  contributors: number | undefined;
   topics: string[];
   license: string;
   createdAt: string;
@@ -128,6 +131,21 @@ export class GitHubClient {
     return { status: response.status, body };
   }
 
+  /**
+   * Item count of a list endpoint, from the "last" page link with per_page=1. Optional data: any failure
+   * (GitHub answers 403 for the contributors of very large repositories) gives undefined, not an error.
+   */
+  private async count(path: string, signal: AbortSignal): Promise<number | undefined> {
+    try {
+      const response = await fetch(`https://api.github.com${path}${path.includes("?") ? "&" : "?"}per_page=1`, { headers: this.headers(), signal });
+      if (!response.ok) return undefined;
+      const last = /[?&]page=(\d+)>; rel="last"/.exec(response.headers.get("link") ?? "");
+      return last === null ? ((await response.json()) as unknown[]).length : Number(last[1]);
+    } catch {
+      return undefined;
+    }
+  }
+
   /** Metadata and the commit SHA. Cheap: used first, so a cached deck needs no download. */
   async meta(ref: RepoRef, signal: AbortSignal): Promise<RepoMeta> {
     const base = `/repos/${ref.owner}/${ref.repo}`;
@@ -135,10 +153,12 @@ export class GitHubClient {
     if (repo.body === undefined) throw new RepoError("repository not found, or it is private (only public repositories are supported)");
     const r = repo.body;
     const commitRef = ref.ref ?? String(r["default_branch"]);
-    const [sha, languages, release] = await Promise.all([
+    const [sha, languages, release, commits, contributors] = await Promise.all([
       this.api<string>(`${base}/commits/${encodeURIComponent(commitRef)}`, signal, "application/vnd.github.sha"),
       this.api<Record<string, number>>(`${base}/languages`, signal),
       this.api<Record<string, any>>(`${base}/releases/latest`, signal),
+      this.count(`${base}/commits?sha=${encodeURIComponent(commitRef)}`, signal),
+      this.count(`${base}/contributors`, signal),
     ]);
     if (sha.body === undefined || !/^[0-9a-f]{40}$/.test(sha.body.trim())) throw new RepoError(`ref "${commitRef}" not found`);
     return {
@@ -149,6 +169,8 @@ export class GitHubClient {
       stars: Number(r["stargazers_count"] ?? 0),
       forks: Number(r["forks_count"] ?? 0),
       openIssues: Number(r["open_issues_count"] ?? 0),
+      commits,
+      contributors,
       topics: Array.isArray(r["topics"]) ? r["topics"].map(String).slice(0, 15) : [],
       license: String(r["license"]?.["spdx_id"] ?? "none"),
       createdAt: String(r["created_at"] ?? ""),

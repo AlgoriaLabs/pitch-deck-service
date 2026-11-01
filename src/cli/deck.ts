@@ -69,6 +69,8 @@ function localMeta(dir: string): RepoMeta {
     stars: 0,
     forks: 0,
     openIssues: 0,
+    commits: Number(git("rev-list", "--count", "HEAD")) || undefined,
+    contributors: new Set(git("log", "--format=%ae").split("\n").filter(Boolean)).size || undefined,
     topics: [],
     license: "unknown",
     createdAt: "",

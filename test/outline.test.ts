@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { OutlineError, parseOutline } from "../src/pipeline/outline.js";
+import { OUTLINE_SCHEMA, OutlineError, parseOutline } from "../src/pipeline/outline.js";
 
 const fixture = readFileSync(new URL("../../test/fixtures/outline.json", import.meta.url), "utf8");
 
@@ -20,7 +20,7 @@ test("over-long strings are cut at a word and extra items dropped", () => {
   raw.tagline = "word ".repeat(60);
   raw.problem.bullets = [...raw.problem.bullets, "fifth", "sixth"];
   const outline = parseOutline(JSON.stringify(raw));
-  assert.ok(outline.tagline.length <= 100);
+  assert.ok(outline.tagline.length <= OUTLINE_SCHEMA.properties.tagline.maxLength);
   assert.ok(outline.tagline.endsWith("…"));
   assert.equal(outline.problem.bullets.length, 4);
 });

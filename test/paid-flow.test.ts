@@ -27,16 +27,19 @@ before(async () => {
   dir = await mkdtemp(join(tmpdir(), "deck-test-"));
   const tarball = await fixtureTarball(dir);
 
-  // Fake GitHub: four API calls and the tarball.
+  // Fake GitHub: six API calls and the tarball.
   globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
     const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
+    const lastPage = (page: number) => new Response("[{}]", { headers: { Link: `<https://api.github.com/repositories/1/x?per_page=1&page=${page}>; rel="last"` } });
     if (url === "https://api.github.com/repos/acme/rocket") {
       return json({ full_name: "acme/rocket", html_url: "https://github.com/acme/rocket", description: "Launches rockets from YAML", stargazers_count: 4321, forks_count: 87, open_issues_count: 5, topics: ["rockets"], license: { spdx_id: "MIT" }, default_branch: "main", created_at: "2025-01-01T00:00:00Z", pushed_at: "2026-10-01T00:00:00Z" });
     }
     if (url.startsWith("https://api.github.com/repos/acme/rocket/commits/")) return new Response(SHA);
     if (url === "https://api.github.com/repos/acme/rocket/languages") return json({ TypeScript: 9000, Python: 1000 });
     if (url === "https://api.github.com/repos/acme/rocket/releases/latest") return new Response("{}", { status: 404 });
+    if (url.startsWith("https://api.github.com/repos/acme/rocket/commits?")) return lastPage(1234);
+    if (url.startsWith("https://api.github.com/repos/acme/rocket/contributors?")) return lastPage(56);
     if (url === `https://codeload.github.com/acme/rocket/tar.gz/${SHA}`) return new Response(new Uint8Array(tarball));
     if (url.startsWith("https://api.github.com/")) return new Response("{}", { status: 404 });
     return realFetch(input, init);

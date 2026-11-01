@@ -1,5 +1,5 @@
 // The whole job: repository URL in, PPTX out.
-//   meta (4 GitHub calls) → tarball → digest → outline (cache hit, or 1 LLM call) → render → save.
+//   meta (6 GitHub calls, in parallel after the first) → tarball → digest → outline (cache hit, or 1 LLM call) → render → save.
 
 import type { Config } from "../config.js";
 import type { DeckStorage } from "../storage.js";
