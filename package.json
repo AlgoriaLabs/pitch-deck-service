@@ -20,27 +20,27 @@
     "try": "node scripts/kit.mjs try",
     "register": "node scripts/kit.mjs register",
     "verify": "node scripts/kit.mjs verify",
-    "update-kit": "bash scripts/update-kit.sh",
     "deploy": "node scripts/deploy.mjs",
     "ci:setup": "node scripts/ci-setup.mjs",
     "ci:sync": "node scripts/ci-setup.mjs --sync"
   },
   "dependencies": {
     "@hono/node-server": "2.1.5",
-    "@stellar-agent-services/payment-client": "file:vendor/stellar-agent-services-payment-client-0.0.0.tgz",
-    "@stellar-agent-services/protocol": "file:vendor/stellar-agent-services-protocol-0.0.0.tgz",
-    "@stellar-agent-services/provider-kit": "file:vendor/stellar-agent-services-provider-kit-0.0.0.tgz",
+    "@stellar-agent-services/protocol": "0.1.0",
+    "@stellar-agent-services/provider-kit": "0.1.0",
     "ajv": "8.20.0",
     "hono": "4.13.14",
     "pptxgenjs": "4.0.1",
     "tar": "7.5.22"
   },
   "overrides": {
-    "@stellar/stellar-sdk": "16.3.1",
-    "axios": "1.20.0"
+    "@trionlabs/stellar8004": {
+      "@stellar/stellar-sdk": "16.4.1"
+    }
   },
   "devDependencies": {
-    "@stellar/stellar-sdk": "16.3.1",
+    "@stellar-agent-services/verifier": "0.1.0",
+    "@stellar/stellar-sdk": "16.4.1",
     "@types/node": "22.20.5",
     "@x402/core": "2.28.0",
     "typescript": "6.0.3"

@@ -6,7 +6,7 @@
 ## 1. Install · 1 min
 
 ```bash
-npm ci          # the Provider Kit comes packed in vendor/, nothing to build
+npm ci          # the Provider Kit comes from npm, nothing to build
 npm test
 ```
 
@@ -51,5 +51,4 @@ localhost. To aim at localhost while a deployment exists: `MANIFEST=http://local
 | `src/pipeline/render.ts` | The slide template |
 | `scripts/kit.mjs` | `npm run wallet / check / try / register / verify` |
 | `scripts/deploy.mjs`, `scripts/ci-setup.mjs` | `npm run deploy`, `npm run ci:setup` |
-| `scripts/update-kit.sh` | Updates the packed Provider Kit in `vendor/` |
 | `deploy/terraform/` | The server |

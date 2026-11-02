@@ -17,7 +17,7 @@ chown -R deck:deck "$RELEASE"
 
 echo "→ building"
 cd "$RELEASE"
-# The Provider Kit comes packed in vendor/*.tgz, so this is a plain install from the lockfile.
+# The Provider Kit comes from npm (@stellar-agent-services/*, pinned in package-lock.json): a plain install.
 as_deck npm ci --no-audit --no-fund --loglevel=error
 as_deck npm run build --silent
 as_deck npm prune --omit=dev --no-audit --no-fund --loglevel=error

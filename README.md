@@ -60,7 +60,7 @@ approve them in that wallet. The registering wallet becomes the agent's wallet, 
 
 | | |
 | --- | --- |
-| `npm ci` | install (the Provider Kit is packed in `vendor/`) |
+| `npm ci` | install (the Provider Kit comes from npm: `@stellar-agent-services/provider-kit`) |
 | `npm test` | offline tests, incl. a full 402 → pay → download flow |
 | `npm run deck -- <github url>` | make a deck locally, no payment |
 | `npm start` | run the service |
@@ -68,10 +68,9 @@ approve them in that wallet. The registering wallet becomes the agent's wallet, 
 | `npm run register` | register on Stellar 8004, approved in your wallet; saves the agent id to tfvars |
 | `npm run try` | pay for one deck with test money (throwaway payer, testnet only) |
 | `npm run check` | Provider Standard self-check, and how agents find you in search |
-| `npm run verify` | external standard check C1–C7 (after `npm run update-kit` once) |
+| `npm run verify` | external standard check C1–C7 (`@stellar-agent-services/verifier`) |
 | `npm run deploy` | deploy or update the server (Terraform, shared state in an OCI bucket) |
 | `npm run ci:setup` | turn on automatic deploys: every push to `main` tests and deploys |
-| `npm run update-kit` | update the packed Provider Kit to a pinned stellar-agent-services commit |
 
 `check`, `try`, `register` and `verify` find the service by themselves: `$MANIFEST`, else `terraform output`,
 else `http://localhost:8787`.
@@ -90,7 +89,6 @@ else `http://localhost:8787`.
 | `src/pipeline/render.ts` | PPTX template (pptxgenjs) |
 | `src/pipeline/cache.ts`, `src/storage.ts` | outline cache, deck files |
 | `scripts/kit.mjs` | `npm run wallet / check / try / register / verify` |
-| `vendor/` | the Provider Kit, packed (`scripts/update-kit.sh` refreshes it; commit it) |
 | `scripts/deploy.mjs`, `scripts/ci-setup.mjs` | `npm run deploy`, `npm run ci:setup` |
 | `deploy/terraform/` | OCI network + VM + reserved IP, cloud-init, deploy-on-apply |
 | `deploy/state/` | the private bucket for Terraform state (made once by `npm run deploy`) |

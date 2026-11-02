@@ -34,8 +34,7 @@ data "archive_file" "app" {
   source_dir  = "${path.module}/../.."
   output_path = "${path.module}/.build/app.zip"
   excludes = [
-    # vendor/*.tgz (the packed Provider Kit) ships; the kit's source clone doesn't.
-    ".git", ".git/**", "node_modules/**", "dist/**", "dist-test/**", "vendor/stellar-agent-services/**", "data/**",
+    ".git", ".git/**", "node_modules/**", "dist/**", "dist-test/**", "data/**",
     ".env", "*.pptx", "deploy/terraform/.terraform/**", "deploy/terraform/.build/**",
     "deploy/terraform/terraform.tfvars", "deploy/terraform/*.tfstate*", "deploy/terraform/.terraform.lock.hcl",
   ]

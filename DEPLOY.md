@@ -167,7 +167,7 @@ Back to testnet: `stellar_network = "testnet"` → `npm run deploy`.
 | See server logs | `$(terraform -chdir=deploy/terraform output -raw logs)` |
 | Approve each deploy by hand | GitHub → Settings → Environments → `production` → Required reviewers (public repos, or paid plans) |
 | Pause auto-deploys | GitHub → Settings → Variables → `DEPLOY_ENABLED` = `false` |
-| Update the Provider Kit | `npm run update-kit` → commit → push |
+| Update the Provider Kit | bump the `@stellar-agent-services/*` versions in `package.json` → `npm install` → commit → push |
 | Delete everything | `terraform -chdir=deploy/terraform destroy` |
 
 ## 🆘 If this, then that

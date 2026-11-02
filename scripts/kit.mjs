@@ -6,7 +6,7 @@
 //   npm run try                   pay for one deck with test money (testnet only)
 //   npm run register              register on Stellar 8004, approved in your browser wallet; saves the agent id
 //                                 to deploy/terraform/terraform.tfvars (then: npm run deploy)
-//   npm run verify                the external standard check (C1–C7); needs scripts/update-kit.sh once
+//   npm run verify                the external standard check (C1–C7), with @stellar-agent-services/verifier
 //   npm run kit -- <anything>     the provider-kit CLI itself
 //
 // The service is found in this order: $MANIFEST, then `terraform output` in deploy/terraform, then the local
@@ -20,14 +20,14 @@ import { setTfvar, TFVARS } from "./lib/deploy-lib.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KIT = join(root, "node_modules/@stellar-agent-services/provider-kit/dist/cli/index.js");
-const VERIFIER = join(root, "vendor/stellar-agent-services/packages/verifier/dist/cli/index.js");
+const VERIFIER = join(root, "node_modules/@stellar-agent-services/verifier/dist/cli/index.js");
 const SERVICE = "pitch-deck";
 
 const [command = "help", ...rest] = process.argv.slice(2);
 
 function run(cli, args) {
   if (!existsSync(cli)) {
-    console.error(cli === KIT ? "✗ The kit isn't installed. Run: npm install" : "✗ The verifier comes with the kit's source. Run once: bash scripts/update-kit.sh");
+    console.error(`✗ ${cli === KIT ? "The kit" : "The verifier (a dev dependency)"} isn't installed. Run: npm install`);
     process.exit(1);
   }
   const result = spawnSync(process.execPath, ["--disable-warning=ExperimentalWarning", cli, ...args], { stdio: "inherit", cwd: root });
